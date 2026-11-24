@@ -29,6 +29,6 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts"
-  ],
+, "app/security/components/RequestList.jsx", "app/security/components/PriorityBadge.jsx", "app/security/components/StatusBadge.jsx", "app/security/components/StatCard.jsx", "app/security/components/Sidebar.jsx", "app/security/components/RequestDetails.jsx", "app/security/page.jsx", "app/context/EmergencyContext.jsx", "app/student/page.jsx", "app/page.jsx", "app/layout.jsx", "next.config.mjs"  ],
   "exclude": ["node_modules"]
 }
