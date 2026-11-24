@@ -9,6 +9,16 @@ import RequestList from "./components/RequestList";
 import RequestDetails from "./components/RequestDetails";
 
 import { useEmergency } from "../context/EmergencyContext";
+import type { Status } from "./types";
+
+type ToastNotification = {
+  eventId: string;
+  student: string;
+  type: string;
+  location: string;
+  priority: string;
+  requestId: string;
+};
 
 export default function SecurityPage() {
   const {
@@ -22,13 +32,13 @@ export default function SecurityPage() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
 
-  const [toasts, setToasts] = useState([]);
+  const [toasts, setToasts] = useState<ToastNotification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [notificationPermission, setNotificationPermission] =
-    useState("default");
+    useState<NotificationPermission | "unsupported">("default");
 
-  const audioContextRef = useRef(null);
-  const processedEvents = useRef(new Set());
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const processedEvents = useRef(new Set<string>());
 
   const selected =
     requests.find((request) => request.id === selectedId) ??
@@ -53,7 +63,10 @@ export default function SecurityPage() {
       }
 
       const AudioContextClass =
-        window.AudioContext || window.webkitAudioContext;
+        window.AudioContext ||
+        (window as typeof window & {
+          webkitAudioContext?: typeof AudioContext;
+        }).webkitAudioContext;
 
       if (AudioContextClass) {
         if (!audioContextRef.current) {
@@ -121,7 +134,7 @@ export default function SecurityPage() {
 
       const request = event.request;
 
-      const toast = {
+      const toast: ToastNotification = {
         eventId: event.eventId,
         student: request.student,
         type: request.type,
@@ -158,20 +171,20 @@ export default function SecurityPage() {
   }, [notificationEvents]);
 
   // Close toast notification
-  function dismissToast(eventId) {
+  function dismissToast(eventId: string) {
     setToasts((previous) =>
       previous.filter((toast) => toast.eventId !== eventId)
     );
   }
 
   // Select a request from notification
-  function openRequest(requestId) {
+  function openRequest(requestId: string) {
     setSelectedId(requestId);
     setUnreadCount(0);
     setToasts([]);
   }
 
-  async function updateStatus(id, status) {
+  async function updateStatus(id: string, status: Status) {
     try {
       await updateRequest(id, { status });
     } catch (error) {
@@ -183,7 +196,7 @@ export default function SecurityPage() {
     }
   }
 
-  async function addNote(id, newNote) {
+  async function addNote(id: string, newNote: string) {
     const request = requests.find((item) => item.id === id);
 
     if (!request || !newNote.trim()) return;

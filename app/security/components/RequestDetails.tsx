@@ -2,14 +2,21 @@
 "use client";
 
 import { useState } from "react";
+import type { EmergencyRequest, Status } from "../types";
 import StatusBadge from "./StatusBadge";
 import PriorityBadge from "./PriorityBadge";
+
+type RequestDetailsProps = {
+  request: EmergencyRequest | undefined;
+  onStatusChange: (id: string, status: Status) => void;
+  onAddNote: (id: string, note: string) => void;
+};
 
 export default function RequestDetails({
   request,
   onStatusChange,
   onAddNote,
-}) {
+}: RequestDetailsProps) {
   const [note, setNote] = useState("");
   const [message, setMessage] = useState("");
 
@@ -17,7 +24,7 @@ export default function RequestDetails({
     setMessage("");
   }
 
-  function handleStatusChange(status) {
+  function handleStatusChange(status: Status) {
     if (!request) return;
 
     onStatusChange(request.id, status);
@@ -48,16 +55,25 @@ export default function RequestDetails({
 
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+
+      {/* Header */}
       <h2 className="text-xl font-bold">
         Request Details
       </h2>
 
       <div className="mt-4">
-        <p className="font-semibold">{request.student}</p>
-        <p className="text-sm text-gray-500">{request.id}</p>
+        <p className="font-semibold">
+          {request.student}
+        </p>
+
+        <p className="text-sm text-gray-500">
+          {request.id}
+        </p>
       </div>
 
+      {/* Request Information */}
       <div className="mt-5 space-y-4 text-sm">
+
         <p>
           <strong>Emergency Type:</strong> {request.type}
         </p>
@@ -72,6 +88,7 @@ export default function RequestDetails({
 
         <div>
           <strong>Priority:</strong>
+
           <div className="mt-2">
             <PriorityBadge priority={request.priority} />
           </div>
@@ -83,12 +100,15 @@ export default function RequestDetails({
 
         <div>
           <strong>Current Status:</strong>
+
           <div className="mt-2">
             <StatusBadge status={request.status} />
           </div>
         </div>
+
       </div>
 
+      {/* Status Update */}
       <div className="mt-6">
         <label className="mb-2 block text-sm font-semibold">
           Update Request Status
@@ -97,7 +117,7 @@ export default function RequestDetails({
         <select
           value={request.status}
           onChange={(event) =>
-            handleStatusChange(event.target.value)
+            handleStatusChange(event.target.value as Status)
           }
           className="w-full rounded-lg border border-slate-200 p-3 text-sm"
         >
@@ -108,12 +128,15 @@ export default function RequestDetails({
         </select>
       </div>
 
+      {/* Security Response Notes */}
       <div className="mt-6 border-t border-slate-100 pt-5">
+
         <h3 className="font-semibold">
           Security Response Notes
         </h3>
 
         <div className="mt-3 space-y-2">
+
           {request.notes.length === 0 ? (
             <p className="text-sm text-gray-500">
               No response notes yet.
@@ -128,6 +151,7 @@ export default function RequestDetails({
               </div>
             ))
           )}
+
         </div>
 
         <textarea
@@ -148,6 +172,7 @@ export default function RequestDetails({
           Add Response Note
         </button>
 
+        {/* Success Message */}
         {message && (
           <p
             role="status"
@@ -156,6 +181,7 @@ export default function RequestDetails({
             {message}
           </p>
         )}
+
       </div>
     </div>
   );

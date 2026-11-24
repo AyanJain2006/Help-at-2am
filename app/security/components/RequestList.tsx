@@ -1,6 +1,17 @@
 
+import type { EmergencyRequest } from "../types";
 import StatusBadge from "./StatusBadge";
 import PriorityBadge from "./PriorityBadge";
+
+type RequestListProps = {
+  requests: EmergencyRequest[];
+  selectedId: string;
+  onSelect: (id: string) => void;
+  search: string;
+  onSearchChange: (value: string) => void;
+  filter: string;
+  onFilterChange: (value: string) => void;
+};
 
 export default function RequestList({
   requests,
@@ -10,13 +21,11 @@ export default function RequestList({
   onSearchChange,
   filter,
   onFilterChange,
-}) {
+}: RequestListProps) {
   return (
     <section className="min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
       <div className="border-b border-slate-100 p-5">
-        <h3 className="text-lg font-bold">
-          Incoming requests
-        </h3>
+        <h3 className="text-lg font-bold">Incoming requests</h3>
 
         <p className="mt-1 text-sm text-slate-500">
           Select a request to view its details.
@@ -55,9 +64,7 @@ export default function RequestList({
           >
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <p className="font-semibold">
-                  {request.student}
-                </p>
+                <p className="font-semibold">{request.student}</p>
 
                 <p className="mt-1 text-xs text-slate-500">
                   {request.id} · {request.time}

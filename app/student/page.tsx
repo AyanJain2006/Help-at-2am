@@ -5,9 +5,11 @@ import { useState } from "react";
 import Link from "next/link";
 import { useEmergency } from "../context/EmergencyContext";
 
-const campusLocations = {};
+type LocationMap = Record<string, string[]>;
 
-function addHostels(gender) {
+const campusLocations: LocationMap = {};
+
+function addHostels(gender: string) {
   for (let i = 1; i <= 7; i++) {
     for (const block of ["A", "B", "C"]) {
       const name = `${gender} Hostel ${i} - Block ${block}`;
@@ -52,7 +54,7 @@ for (let i = 1; i <= 57; i++) {
 });
 
 const buildingNames = Object.keys(campusLocations).sort((a, b) => {
-  const group = (name) => {
+  const group = (name: string) => {
     if (name.startsWith("Boys")) return 1;
     if (name.startsWith("Girls")) return 2;
     if (name.startsWith("Academic")) return 3;
@@ -88,7 +90,7 @@ export default function StudentPage() {
     ? campusLocations[building] || []
     : [];
 
-  async function handleSubmit(e) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
     if (submitting) return;

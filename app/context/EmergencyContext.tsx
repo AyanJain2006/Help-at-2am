@@ -6,19 +6,45 @@ import {
   useContext,
   useEffect,
   useState,
+  ReactNode,
 } from "react";
 
-import { io } from "socket.io-client";
+import { io, Socket } from "socket.io-client";
+import type { EmergencyRequest } from "../security/types";
 
 const API_URL = "http://localhost:5000/api/requests";
 const SOCKET_URL = "http://localhost:5000";
 
-const EmergencyContext = createContext(undefined);
+export type EmergencyNotification = {
+  request: EmergencyRequest;
+  eventId: string;
+};
 
-export function EmergencyProvider({ children }) {
-  const [requests, setRequests] = useState([]);
+type EmergencyContextType = {
+  requests: EmergencyRequest[];
+  loading: boolean;
+  notificationEvents: EmergencyNotification[];
+  addRequest: (request: EmergencyRequest) => Promise<void>;
+  updateRequest: (
+    id: string,
+    updates: Partial<EmergencyRequest>
+  ) => Promise<void>;
+};
+
+const EmergencyContext = createContext<
+  EmergencyContextType | undefined
+>(undefined);
+
+export function EmergencyProvider({
+  children,
+}: {
+  children: ReactNode;
+}) {
+  const [requests, setRequests] = useState<EmergencyRequest[]>([]);
   const [loading, setLoading] = useState(true);
-  const [notificationEvents, setNotificationEvents] = useState([]);
+  const [notificationEvents, setNotificationEvents] = useState<
+    EmergencyNotification[]
+  >([]);
 
   // Fetch existing requests from backend
   useEffect(() => {
@@ -55,37 +81,37 @@ export function EmergencyProvider({ children }) {
 
   // Connect to Socket.IO for real-time requests
   useEffect(() => {
-    const socket = io(SOCKET_URL, {
+    const socket: Socket = io(SOCKET_URL, {
       transports: ["websocket", "polling"],
     });
 
     socket.on("connect", () => {
-      console.log(
-        "Connected to real-time notification server:",
-        socket.id
-      );
+      console.log("Connected to real-time notification server:", socket.id);
     });
 
     socket.on("connect_error", (error) => {
       console.error("Socket connection error:", error.message);
     });
 
-    socket.on("new-emergency-request", (newRequest) => {
-      console.log("New emergency request received:", newRequest);
+    socket.on(
+      "new-emergency-request",
+      (newRequest: EmergencyRequest) => {
+        console.log("New emergency request received:", newRequest);
 
-      setRequests((previous) => [
-        newRequest,
-        ...previous.filter((item) => item.id !== newRequest.id),
-      ]);
+        setRequests((previous) => [
+          newRequest,
+          ...previous.filter((item) => item.id !== newRequest.id),
+        ]);
 
-      setNotificationEvents((previous) => [
-        ...previous,
-        {
-          request: newRequest,
-          eventId: `${newRequest.id}-${Date.now()}-${Math.random()}`,
-        },
-      ]);
-    });
+        setNotificationEvents((previous) => [
+          ...previous,
+          {
+            request: newRequest,
+            eventId: `${newRequest.id}-${Date.now()}-${Math.random()}`,
+          },
+        ]);
+      }
+    );
 
     return () => {
       socket.disconnect();
@@ -93,7 +119,7 @@ export function EmergencyProvider({ children }) {
   }, []);
 
   // Create request using POST API
-  const addRequest = async (request) => {
+  const addRequest = async (request: EmergencyRequest) => {
     const response = await fetch(API_URL, {
       method: "POST",
       headers: {
@@ -117,7 +143,10 @@ export function EmergencyProvider({ children }) {
   };
 
   // Update request using PATCH API
-  const updateRequest = async (id, updates) => {
+  const updateRequest = async (
+    id: string,
+    updates: Partial<EmergencyRequest>
+  ) => {
     const response = await fetch(
       `${API_URL}/${encodeURIComponent(id)}`,
       {
