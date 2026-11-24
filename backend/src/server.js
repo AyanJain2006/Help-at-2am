@@ -13,13 +13,12 @@ const server = http.createServer(app);
 const allowedOrigins = [
   "http://localhost:3000",
   "http://localhost:3001",
-];
+  process.env.FRONTEND_URL,
+].filter(Boolean);
 
-app.use(
-  cors({
-    origin: allowedOrigins,
-  })
-);
+app.use(cors({
+  origin: allowedOrigins,
+}));
 
 app.use(express.json());
 
@@ -30,7 +29,6 @@ const io = new Server(server, {
   },
 });
 
-// Make Socket.IO available to controllers
 app.set("io", io);
 
 io.on("connection", (socket) => {
@@ -52,7 +50,7 @@ app.use("/api/requests", requestRoutes);
 
 const PORT = process.env.PORT || 5000;
 
-server.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
+server.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server running on port ${PORT}`);
   console.log("Socket.IO real-time notifications enabled!");
 });
